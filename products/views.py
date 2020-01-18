@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import View
-from .models import Product,Refund, Order, OrderProduct, BillingAddress, Payment, OrderStatus
+from .models import Product,Refund, Order, OrderProduct, BillingAddress, Payment, OrderStatus, RefCode
 from .forms import CheckOutForm, RefundForm
 from django.db import transaction
 from django.contrib import messages
@@ -12,12 +12,13 @@ import random
 import string
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+import requests as req
+
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 def create_ref_code():
     ref_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
-    print(ref_code)
     return ref_code
 
 class Index(View):
@@ -268,6 +269,87 @@ class StripePayment(LoginRequiredMixin, View):
             messages.warning(self.request, 'Something went wrong!')
             return redirect('pay_with_stripe')
 
+class Esewa(View):
+    def get(self, request, *args, **kwargs):
+        try:
+            order = Order.objects.get(user=self.request.user, ordered=False)
+            if order.billing_address:
+                order = Order.objects.get(user=self.request.user, ordered=False)
+                total = order.get_grand_total()
+                ref_code = create_ref_code()
+                ref_code_obj = RefCode()
+                ref_code_obj.code = ref_code
+                ref_code_obj.save()
+                url ="https://uat.esewa.com.np/epay/main/"
+                d = {'amt': total,
+                    'pdc': 0,
+                    'psc': 0,
+                    'txAmt': 0,
+                    'tAmt': total,
+                    'pid':str(ref_code),
+                    'scd':'epay_payment',
+                    'su':'http://http://127.0.0.1:8000/epay_payment_success/',
+                    'fu':'http://http://127.0.0.1:8000/esewa_payment_failed/'
+                    }
+                context = {
+                    'obj':order,
+                    'd':d
+                }
+                return render(self.request, 'esewa.html', context)
+            else:
+                messages.warning(self.request, 'Fill up the form first.')
+                return redirect('checkout')
+        except ObjectDoesNotExist:
+            messages.warning(self.request, 'You do not have any existing order.')
+            return redirect('home')
+
+
+def esewa_success(request):
+    order = Order.objects.get(user=request.user, ordered=False)
+    total = order.get_grand_total()
+    ref_code_qs = RefCode.objects.filter('code')
+    ref_code = ref_code_qs[0]
+    url ="https://uat.esewa.com.np/epay/transrec"
+    d = {
+        'amt': total,
+        'scd': 'epay_payment',
+        'rid': str(ref_code),
+        'pid':'ee2c3ca1-696b-4cc5-a6be-2c40d929d453',
+    }
+    resp = req.post(url, d)
+    ref_code_qs.delete()
+    if resp.status_code == 200:
+        order = Order.objects.get(user=request.user, ordered=False)
+        total = order.get_grand_total()
+        ref_code = create_ref_code()
+        payment = Payment()
+        payment.user = request.user
+        payment.amount = total
+        payment.payment_method = 'esewa'
+        payment.save()
+        order_product = order.product.all()
+        order_product.update(ordered=True)
+        for product in order_product:
+            product.save()
+        # adding payment to order
+        order.payment = payment
+        order.ordered =True
+        order.reference_code = ref_code
+        order.save()
+        order_status = OrderStatus()
+        order_status.user = request.user
+        order_status.pre_processing = True
+        order_status.save()
+        messages.success(request, 'Order Succesful!')
+        return redirect('home')
+    else:
+        messages.warning(request, 'Payment verification failed.')
+        return redirect('home')
+
+def esewa_failed(request):
+    messages.success(request, 'Payment failed! Try again later.')
+    return redirect('home')
+
 class RequestRefund(LoginRequiredMixin, View):
     def get(self, *args, **kwagrs):
         form = RefundForm()
@@ -278,9 +360,6 @@ class RequestRefund(LoginRequiredMixin, View):
 
     def post(self, *args, **kwargs):
         form = RefundForm(self.request.POST)
-        context = {
-            'form':form
-        }
         if form.is_valid():
             order_status = OrderStatus()
             ref_code = form.cleaned_data.get('ref_code')

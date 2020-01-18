@@ -1,0 +1,25 @@
+
+<div class="row justify-content-center">
+    <div class="col-lg-10 mb-5 col-md-6 mt-5 cart-wrap animate">
+        <div class="cart-total mb-3">
+            <h3>Cart Totals</h3>
+            <p class="d-flex">
+                <span>Subtotal</span>
+                <span>NRs. {{ obj.get_grand_total }}</span>
+            </p>
+            <p class="d-flex">
+                <span>Delivery</span>
+                <span>NRs. 0.00</span>
+            </p>
+            <p class="d-flex">
+                <span>Discount</span>
+                <span>NRs. 00</span>
+            </p>
+            <hr>
+            <p class="d-flex">
+                <span>Total</span>
+                <span>NRs. {{ obj.get_grand_total }}</span>
+            </p>
+        </div>
+    </div>
+</div>

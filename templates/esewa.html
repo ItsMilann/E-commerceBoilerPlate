@@ -1,0 +1,20 @@
+{% extends 'index.html' %}
+{% block content %}
+<meta charset="UTF-8">
+    <title>eSewa merchant payment page</title>
+<body>
+    
+    {% include 'cart-snippet.html' %}
+    <form style="width: 60%;" action="https://uat.esewa.com.np/epay/main/" method="post" name="ePay">
+        <div class="col col-8">
+        {% for key, value in d.items %}
+        <input type="hidden" name="{{ key }}" value="{{ value }}">
+        {% endfor %}
+        <button style="width: 50%; margin-left: 20%;" class="btn btn-success btn-md" type="submit">Continue</button>
+        </div>
+    </form>
+    
+    
+</body>
+{% endblock %}
+</html>

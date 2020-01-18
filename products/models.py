@@ -121,7 +121,7 @@ class BillingAddress(models.Model):
 class Payment(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
     payment_method = models.CharField(max_length=10)
-    charge_id = models.CharField(max_length=50)
+    charge_id = models.CharField(max_length=50, blank=True, null=True)
     amount = models.PositiveIntegerField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
@@ -138,6 +138,9 @@ class OrderStatus(models.Model):
 
     def __str__(self):
         return f'Order Status'
+        
+class RefCode(models.Model):
+    code = models.CharField(max_length=20)
 
 class Refund(models.Model):
     order = models.ForeignKey(Order, on_delete = models.CASCADE)

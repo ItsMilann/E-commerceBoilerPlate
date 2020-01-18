@@ -18,8 +18,11 @@ urlpatterns =[
     path('cart/', views.OrderSummary.as_view(), name = 'cart'),
     path('checkout/', views.CheckOut.as_view(), name = 'checkout'),
     path('checkout/stripe/', views.StripePayment.as_view(), name = 'pay_with_stripe'),
+    path('checkout/esewa/', views.Esewa.as_view(), name = 'pay_with_esewa'),
     path('refund/', views.RequestRefund.as_view(), name = 'refund'),
-    path('blog/', views.Blog.as_view(), name = 'blog')
+    path('blog/', views.Blog.as_view(), name = 'blog'),
+    path('esewa_payment_failed/', views.esewa_failed, name = 'esewa_failed'),
+    path('esewa_payment_success/', views.esewa_success, name = 'esewa_success')
 ]
 
 if settings.DEBUG == True:
