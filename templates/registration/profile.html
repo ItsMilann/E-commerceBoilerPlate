@@ -1,0 +1,80 @@
+{% extends 'index.html' %}
+<body>
+{% block content %}
+  <div style="width: 100%;" class="row">
+    <div class="col-lg-3 col-md-5 mt-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="mt-30"> <img src="{{ user.profile.profile_pic.url }}" class="rounded-circle" width="150">
+                    <h4 class="card-title m-t-10">{{ user.first_name }} {{ user.last_name }}</h4>
+                    <h6 class="card-subtitle">{{ user.profile.bio }}</h6>
+                    <div class="row text-center justify-content-md-center">
+                        <div class="col-4"><a> <font class="font-large">{{ user.username }}</font></a></div>
+                        <div class="col-4"><a> <font class="font-large">{{ user.profile.birth_date }}</font></a></div>
+                    </div>
+                </div>
+            </div>
+            <div>
+            <hr> </div>
+            <div class="card-body"> <small class="text-muted">Email address </small>
+                <h6>{{ user.email }}</h6> <small class="text-muted p-t-30 db">Phone</small>
+                <h6>+977-{{ user.profile.phone }}</h6> <small class="text-muted p-t-30 db">Address</small>
+                <h6>{{ user.profile.street_address }}, {{ user.profile.address }}</h6>
+            </div>
+            <a  href="{% url 'profile_update' %}"<button type="button" class="btn btn-secondary btn-sm" ></button>Update Profile</a>
+            
+        </div>
+    </div>
+    <div class="col">
+      <div class="text-uppercase">Your Current Orders</div>
+    <table style="width: 100%;" class="col-lg-6 pl-md-5 mt-3">
+              <thead>
+                <tr>
+                  <th scope="col" class="border-0 bg-light">
+                    <div>Ref code</div>
+                </th>
+                  <th scope="col" class="border-0 bg-light">
+                    <div>Ordered Date</div>
+                  </th>
+                  <th scope="col" class="border-0 bg-light">
+                    <div>Product</div>
+                  </th>
+                  <th scope="col" class="border-0 bg-light">
+                    <div>Quantity</div>
+                  </th>
+                  <th scope="col" class="border-0 bg-light">
+                    <div>Total Price</div>
+                  </th>
+                </tr>
+              </thead>
+            {% for order in order.all %}
+              <tbody>
+                    <th scope="row" class="border-2">
+                    {{ order.reference_code }}
+                    </th>
+                    <th scope="row" class="border-2">
+                    {{ order.ordered_date }}
+                    </th>
+                    <th scope="row" class="border-2">
+                      {% for product in order.product.all %}
+                      <p>{{ product.product.name }}</p>
+                      {% endfor %}
+                    </th>
+                    <th scope="row" class="border-2">
+                      {% for product in order.product.all %}
+                        <p>{{ product.quantity }}</p>
+                      {% endfor %}
+                    </th>
+                    <th scope="row" class="border-2">
+                      {{ order.get_grand_total }}
+                    </th>
+                </tbody>
+            {% endfor %}
+    </table>
+    <a href="{% url 'refund' %}" <button style="border-radius: 4px;" type="button" class="btn btn-danger mt-3 mb-5 btn-sm" ></button>Request Refund</a>
+   
+    </div>
+  </div>
+{% include 'footer.html' %}
+{% endblock %}
+</body>

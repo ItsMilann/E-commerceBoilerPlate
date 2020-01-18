@@ -1,0 +1,9 @@
+        Things to do:
+1. User profile should be created at the time of log in.(Hint: All value of UserProfile should be true for null and blank.) [done]
+2. Fix: when product is deleted and readded to cart previous quantity is added.[done]
+3. User Profile : add order summary, order status, gifts etc
+
+
+create form 
+create model
+create view
