@@ -13,7 +13,7 @@ import string
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 import requests as req
-
+from .forms import Query
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -23,23 +23,33 @@ def create_ref_code():
 
 class Index(View):
     def get(self, *args, **kwargs):
+        form = Query()
         object = Product.objects.all()
-        context = {'obj':object}
+        context = {'obj':object,
+                    'query_form':form
+                    }
         return render(self.request, 'home.html', context)
 
 
 class Blog(View):
     def get(self, *args, **kwargs):
+        form = Query()
+        context = {
+            'query_form':form }
         return render(self.request, 'blog_single.html')
 
 
 class ProductDetailView(View):
     def get(self, request, id=None, *args, **kwargs):
-        context = {}
+        form = Query()
         if id is not None:
             id_= self.kwargs.get('id')
             object = get_object_or_404(Product, id=id_)
-            context['obj'] = object
+            context={
+                'obj':object,
+                'query_form':form
+            }
+
         return render(request, 'product-detail.html', context)
 
 
@@ -140,9 +150,11 @@ def minus_one(request, id):
 class OrderSummary(LoginRequiredMixin,View):
     def get(self, *args, **kwargs):
         try:
+            form = Query()
             object = Order.objects.get(user=self.request.user, ordered=False)
             context = {
-                'object': object
+                'object': object,
+                'query_form':form 
             }
             return render(self.request, 'products/cart.html', context)
         except ObjectDoesNotExist:
@@ -153,8 +165,10 @@ class OrderSummary(LoginRequiredMixin,View):
 class CheckOut(LoginRequiredMixin,View):
     def get(self, *args, **kwagrs):
         form = CheckOutForm()
+        form_ = Query()
         context = {
-            'form':form
+            'form':form,
+            'query_form':form_
         }
         return render(self.request, 'products/checkout.html', context)
 
@@ -201,10 +215,12 @@ class CheckOut(LoginRequiredMixin,View):
 
 class StripePayment(LoginRequiredMixin, View):
     def get(self, *args, **kwargs):
+        form = Query()
         order = Order.objects.get(user=self.request.user, ordered=False)
         if order.billing_address:
             context={
-                'obj': order
+                'obj': order,
+                'query_form':form
             }
             return render(self.request, 'payment.html', context)
         else:
@@ -271,6 +287,7 @@ class StripePayment(LoginRequiredMixin, View):
 
 class Esewa(View):
     def get(self, request, *args, **kwargs):
+        form = Query()
         try:
             order = Order.objects.get(user=self.request.user, ordered=False)
             if order.billing_address:
@@ -293,7 +310,8 @@ class Esewa(View):
                     }
                 context = {
                     'obj':order,
-                    'd':d
+                    'd':d,
+                    'query_form':form
                 }
                 return render(self.request, 'esewa.html', context)
             else:
@@ -353,8 +371,10 @@ def esewa_failed(request):
 class RequestRefund(LoginRequiredMixin, View):
     def get(self, *args, **kwagrs):
         form = RefundForm()
+        form_ = Query()
         context = {
-            'form':form
+            'form':form,
+            'query_form':form_
         }
         return render(self.request, 'refund_request.html', context)
 
@@ -378,3 +398,13 @@ class RequestRefund(LoginRequiredMixin, View):
             except ObjectDoesNotExist:
                 messages.warning(self.request, 'Invalid Request!')
                 return redirect('home')
+
+class MakeQuery(View):
+    def post(self, *args, **kwargs):
+        form = Query()
+        query = self.request.POST.get('name')
+        qs = Product.objects.filter(name__icontains=query)
+        context = {'qs':qs,
+            'query_form':form
+                }
+        return render(self.request, 'search_results.html', context)

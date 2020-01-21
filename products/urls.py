@@ -22,7 +22,8 @@ urlpatterns =[
     path('refund/', views.RequestRefund.as_view(), name = 'refund'),
     path('blog/', views.Blog.as_view(), name = 'blog'),
     path('esewa_payment_failed/', views.esewa_failed, name = 'esewa_failed'),
-    path('esewa_payment_success/', views.esewa_success, name = 'esewa_success')
+    path('esewa_payment_success/', views.esewa_success, name = 'esewa_success'),
+    path('search_results/', views.MakeQuery.as_view(), name = 'search_results')
 ]
 
 if settings.DEBUG == True:

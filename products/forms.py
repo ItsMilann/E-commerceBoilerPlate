@@ -42,3 +42,10 @@ class CheckOutForm(forms.Form):
 class RefundForm(forms.Form):
     ref_code = forms.CharField()
     message = forms.CharField(widget=forms.TextInput())
+
+class Query(forms.Form):
+    name = forms.CharField(widget=forms.TextInput(attrs = {'type':"text",
+                        "class":"form-group",
+                        'placeholder':"Search products",
+                        'aria-label':"search"
+                        }))  

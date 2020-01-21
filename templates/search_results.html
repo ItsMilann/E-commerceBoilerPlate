@@ -1,0 +1,66 @@
+
+{% extends 'index.html' %}
+{% load static %}
+{% block content %}
+<body>
+    {% if qs %}
+  <section class="ftco-section bg-light">
+    <div class="container-fluid">
+      <div class="row justify-content-center mb-3 pb-3">
+        <div class="col-md-12 heading-section text-center ftco-animate">
+        <h1 class="big">Products</h1>
+        <h2 class="mb-4">Our Products</h2>
+        </div>
+      </div>    		
+    </div>
+    <div class="container-fluid"> 
+        <div class="row">
+        
+          {% for obj in qs %}
+            <div class="col-sm col-md-6 col-lg ftco-animate fadeInUp ftco-animated">
+                <div class="product">
+                    <a href="{{ obj.get_absolute_url }}" class="img-prod"> <img class="img-fluid"
+                       src="{{ obj.picture.url }}" alt="Colorlib Template">
+                        <!-- {% if obj.get_discount_percent %} -->
+                          <span class="status">{{ obj.get_discount_percent }}%</span>
+                        <!-- {% endif %} -->
+                    </a>
+                    <div class="text py-3 px-3">
+                        <h3><a href="#">{{ obj.name }}</a></h3>
+                        <div class="d-flex">
+                            <div class="pricing">
+                                <p class="price">
+                                  <!-- {% if not obj.discounted_price %} -->
+                                    <span class="price-sale">$ {{ obj.price }}</span>
+                                  <!-- {% else %} -->
+                                    <span class="mr-2 price-dc">$ {{ obj.price }}</span>
+                                    <span class="price-sale">$ {{ obj.discounted_price }}</span>
+                                  </p>
+                                  <!-- {% endif %} -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <p class="bottom-area d-flex">
+                  <a href="{% url 'add_to_cart' obj.id %}" class="add-to-cart">
+                    <span>Add to cart <i class="ion-ios-add ml-1"></i></span>
+                  </a>
+                  <a href="#" class="ml-auto">
+                    <span><i class="ion-ios-heart-empty"></i></span>
+                  </a>
+                </p>
+          </div>
+          {% endfor %}
+         
+    </div>
+  </section>
+             {% else %}
+          <h4> Nothing! matches your query.</h4>
+          {% endif %}
+        </div>
+  {% include 'policy.html' %}
+  {% include 'copyright.html' %}
+</body>
+
+{% endblock %}
