@@ -1,4 +1,9 @@
 import os
+import environ
+
+root = environ.Path(__file__)
+env = environ.Env()
+environ.Env.read_env()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -8,16 +13,16 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '!&ejel&l^yq6(qmh8^-8hpxcho)e&f4^7a*j_&b5&sm8d*aqfq'
+SECRET_KEY = env(str('SECRET_KEY'))
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool('DEBUG', default = True)
 
 ALLOWED_HOSTS = []
 
 
 # Application definition
-STRIPE_SECRET_KEY = 'sk_test_4eC39HqLyjWDarjtT1zdp7dc'
+STRIPE_SECRET_KEY = env.str('SECRET_KEY')
 INSTALLED_APPS = [
     'django.contrib',
     'django.contrib.admin',
@@ -47,7 +52,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'pubgstore.urls'
+ROOT_URLCONF = 'store.urls'
 
 TEMPLATES = [
     {
@@ -67,7 +72,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'pubgstore.wsgi.application'
+WSGI_APPLICATION = 'store.wsgi.application'
 ACCOUNT_FORMS = { 
 'signup': 'products.forms.CustomSignupForm', 
 } 
